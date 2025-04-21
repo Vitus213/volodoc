@@ -1,0 +1,265 @@
+File {
+    path: "",
+    package: Some(
+        Path {
+            segments: [
+                Ident(
+                    "volo",
+                ),
+                Ident(
+                    "example",
+                ),
+            ],
+        },
+    ),
+    items: [
+        Namespace(
+            Namespace {
+                scope: Scope(
+                    "rs",
+                ),
+                name: Path {
+                    segments: [
+                        Ident(
+                            "volo",
+                        ),
+                        Ident(
+                            "example",
+                        ),
+                    ],
+                },
+                annotations: None,
+            },
+        ),
+        Struct(
+            Struct(
+                StructLike {
+                    name: Ident(
+                        "Item",
+                    ),
+                    fields: [
+                        Field {
+                            id: 1,
+                            name: Ident(
+                                "id",
+                            ),
+                            attribute: Required,
+                            ty: Type(
+                                I64,
+                                Annotations(
+                                    [],
+                                ),
+                            ),
+                            default: None,
+                            annotations: Annotations(
+                                [],
+                            ),
+                        },
+                        Field {
+                            id: 2,
+                            name: Ident(
+                                "title",
+                            ),
+                            attribute: Required,
+                            ty: Type(
+                                String,
+                                Annotations(
+                                    [],
+                                ),
+                            ),
+                            default: None,
+                            annotations: Annotations(
+                                [],
+                            ),
+                        },
+                        Field {
+                            id: 3,
+                            name: Ident(
+                                "content",
+                            ),
+                            attribute: Required,
+                            ty: Type(
+                                String,
+                                Annotations(
+                                    [],
+                                ),
+                            ),
+                            default: None,
+                            annotations: Annotations(
+                                [],
+                            ),
+                        },
+                        Field {
+                            id: 10,
+                            name: Ident(
+                                "extra",
+                            ),
+                            attribute: Optional,
+                            ty: Type(
+                                Map {
+                                    key: Type(
+                                        String,
+                                        Annotations(
+                                            [],
+                                        ),
+                                    ),
+                                    value: Type(
+                                        String,
+                                        Annotations(
+                                            [],
+                                        ),
+                                    ),
+                                    cpp_type: None,
+                                },
+                                Annotations(
+                                    [],
+                                ),
+                            ),
+                            default: None,
+                            annotations: Annotations(
+                                [],
+                            ),
+                        },
+                    ],
+                    annotations: Annotations(
+                        [],
+                    ),
+                },
+            ),
+        ),
+        Struct(
+            Struct(
+                StructLike {
+                    name: Ident(
+                        "GetItemRequest",
+                    ),
+                    fields: [
+                        Field {
+                            id: 1,
+                            name: Ident(
+                                "id",
+                            ),
+                            attribute: Required,
+                            ty: Type(
+                                I64,
+                                Annotations(
+                                    [],
+                                ),
+                            ),
+                            default: None,
+                            annotations: Annotations(
+                                [],
+                            ),
+                        },
+                    ],
+                    annotations: Annotations(
+                        [],
+                    ),
+                },
+            ),
+        ),
+        Struct(
+            Struct(
+                StructLike {
+                    name: Ident(
+                        "GetItemResponse",
+                    ),
+                    fields: [
+                        Field {
+                            id: 1,
+                            name: Ident(
+                                "item",
+                            ),
+                            attribute: Required,
+                            ty: Type(
+                                Path(
+                                    Path {
+                                        segments: [
+                                            Ident(
+                                                "Item",
+                                            ),
+                                        ],
+                                    },
+                                ),
+                                Annotations(
+                                    [],
+                                ),
+                            ),
+                            default: None,
+                            annotations: Annotations(
+                                [],
+                            ),
+                        },
+                    ],
+                    annotations: Annotations(
+                        [],
+                    ),
+                },
+            ),
+        ),
+        Service(
+            Service {
+                name: Ident(
+                    "ItemService",
+                ),
+                extends: None,
+                functions: [
+                    Function {
+                        name: Ident(
+                            "GetItem",
+                        ),
+                        oneway: false,
+                        result_type: Type(
+                            Path(
+                                Path {
+                                    segments: [
+                                        Ident(
+                                            "GetItemResponse",
+                                        ),
+                                    ],
+                                },
+                            ),
+                            Annotations(
+                                [],
+                            ),
+                        ),
+                        arguments: [
+                            Field {
+                                id: 1,
+                                name: Ident(
+                                    "req",
+                                ),
+                                attribute: Required,
+                                ty: Type(
+                                    Path(
+                                        Path {
+                                            segments: [
+                                                Ident(
+                                                    "GetItemRequest",
+                                                ),
+                                            ],
+                                        },
+                                    ),
+                                    Annotations(
+                                        [],
+                                    ),
+                                ),
+                                default: None,
+                                annotations: Annotations(
+                                    [],
+                                ),
+                            },
+                        ],
+                        throws: [],
+                        annotations: Annotations(
+                            [],
+                        ),
+                    },
+                ],
+                annotations: Annotations(
+                    [],
+                ),
+            },
+        ),
+    ],
+}
