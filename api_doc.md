@@ -12,10 +12,10 @@
 
 | 字段名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| id | Type(I64, Annotations([])) | 是 | |
-| title | Type(String, Annotations([])) | 是 | |
-| content | Type(String, Annotations([])) | 是 | |
-| extra | Type(Map { key: Type(String, Annotations([])), value: Type(String, Annotations([])), cpp_type: None }, Annotations([])) | 否 | |
+| id | I64 | 是 | |
+| title | String | 是 | |
+| content | String | 是 | |
+| extra | map<string, string> | 否 | |
 
 ---
 
@@ -23,7 +23,7 @@
 
 | 字段名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| id | Type(I64, Annotations([])) | 是 | |
+| id | I64 | 是 | |
 
 ---
 
@@ -31,7 +31,7 @@
 
 | 字段名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| item | Type(Path(Path { segments: [Ident("Item")] }), Annotations([])) | 是 | |
+| item | Item | 是 | |
 
 ---
 
@@ -43,9 +43,11 @@
 
 ##### GetItem
 
-- **请求参数**：Type(Path(Path { segments: [Ident("GetItemRequest")] }), Annotations([]))
+- **请求参数**：GetItemRequest
+    - id: I64 (是)
 
-- **返回结果**：Type(Path(Path { segments: [Ident("GetItemResponse")] }), Annotations([]))
+- **返回结果**：GetItemResponse
+    - item: Item (是)
 
 ---
 

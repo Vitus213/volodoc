@@ -1,13 +1,13 @@
 use std::env;
 use std::process;
 
-use idl_parser::collect_structs;
 use idl_parser::parse_idl;
 
 mod idl_parser;
 //mod doc_generator;
 //mod example_generator;
 mod utils;
+mod markdown_generator;
 
 fn main() {
     // 解析命令行参数
