@@ -1,21 +1,41 @@
-# {{ service.name }} API Documentation
+# API 文档
 
-## Methods
+## 命名空间
 
-{% for method in service.methods %}
-### {{ method.name }}
+- **{{ package }}**
 
-#### Request
-| Field Name | Type |
-|------------|------|
-{% for field in method.request.fields %}
-| {{ field.name }} | {{ field.type }} |
-{% endfor %}
+## 结构体
 
-#### Response
-| Field Name | Type |
-|------------|------|
-{% for field in method.response.fields %}
-| {{ field.name }} | {{ field.type }} |
-{% endfor %}
-{% endfor %}
+{% for s in structs -%}
+### {{ s.name }}
+
+| 字段名 | 类型                | 必填 | 说明 |
+|--------|---------------------|------|------|
+{% for f in s.fields -%}
+| {{ f.name }} | {{ f["type"] }} | {% if f.attribute | contains(substring="Required") %}是{% else %}否{% endif %} | |
+{% endfor -%}
+
+---
+{% endfor -%}
+
+## 服务
+
+{% for service in services -%}
+### {{ service.name }}
+
+#### 方法
+{% for method in service.methods -%}
+##### {{ method.name }}
+
+- **请求参数：** {{ method.request.name }}
+{% for f in method.request.fields -%}
+- {{ f.name }}: {{ f["type"] }} ({% if f.attribute | contains(substring="Required") %}是{% else %}否{% endif %})
+{% endfor -%}
+
+- **返回结果：** {{ method.response.name }}
+{% for f in method.response.fields -%}
+- {{ f.name }}: {{ f["type"] }} ({% if f.attribute | contains(substring="Required") %}是{% else %}否{% endif %})
+{% endfor -%}
+
+{% endfor -%}
+{% endfor -%}

@@ -7,7 +7,7 @@ use std::io::Write;
 
 // 如果项目的模块结构允许，可以使用如下方式引入新的模块：
 
-use crate::markdown_generator::generate_markdown;
+use crate::doc_generator;
 
 #[derive(Debug, Serialize)]
 pub struct Service {
@@ -22,7 +22,7 @@ pub struct Method {
     pub response: Struct,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize,Clone)]
 pub struct Struct {
     pub name: String,
     pub fields: Vec<Field>,
@@ -37,7 +37,7 @@ impl Default for Struct {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize,Clone)]
 pub struct Field {
     pub name: String,
     pub r#type: String,
@@ -49,9 +49,21 @@ pub fn parse_handler(file: &File) -> String {
     let structs = collect_structs(file);
     let services = extract_services(file);
 
-    let doc = generate_markdown(file, &structs, &services);
-    let _ = std::fs::write("api_doc.md", &doc);
-    doc
+  // let doc = generate_markdown(file, &structs, &services);
+ 
+  //  doc
+      // 对所有服务生成文档，并将文档合并
+    //   let mut combined_doc = String::new();
+    //   for service in services {
+    //       // 调用 doc_generator::doc_handler，该函数会生成模板文档、保存到 result 文件夹并返回 Markdown 字符串
+    //       let markdown = doc_generator::doc_handler(&service);
+    //       combined_doc.push_str(&markdown);
+    //       combined_doc.push_str("\n\n");
+    //   }
+        // 生成 API 及结构体文档
+        
+  
+      doc_generator::doc_handler(file, &structs, &services)
 }
 
 /// 解析 Thrift IDL 文件内容
@@ -239,5 +251,52 @@ fn struct_to_struct(st: &pilota_thrift_parser::StructLike) -> Struct {
                 attribute: format!("{:?}", f.attribute),
             })
             .collect(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // 示例 Thrift IDL 内容（简单版）
+    const SAMPLE_THRIFT: &str = r#"
+        namespace rs volo.example
+
+        struct Item {
+            1: required i64 id,
+            2: required string title,
+            3: required string content,
+            10: optional map<string, string> extra,
+        }
+
+        struct GetItemRequest {
+            1: required i64 id,
+        }
+
+        struct GetItemResponse {
+            1: required Item item,
+        }
+
+        service ItemService {
+            GetItemResponse GetItem (1: GetItemRequest req),
+        }
+    "#;
+
+    #[test]
+    fn test_parse_idl_and_generate_api_doc() {
+        // 调用 parse_idl 解析 Thrift 文件内容
+        let result = parse_idl(SAMPLE_THRIFT);
+        assert!(result.is_ok(), "解析 IDL 失败");
+        let file = result.unwrap();
+
+        // 调用 parse_handler 生成 API Markdown 文档
+        let markdown = parse_handler(&file);
+
+        // 验证生成的 Markdown 文档是否包含期望内容
+        assert!(markdown.contains("volo.example"), "文档中未包含命名空间");
+        assert!(markdown.contains("Item"), "文档中未包含 Item 结构体");
+        assert!(markdown.contains("GetItemRequest"), "文档中未包含 GetItemRequest");
+        assert!(markdown.contains("GetItemResponse"), "文档中未包含 GetItemResponse");
+        assert!(markdown.contains("ItemService"), "文档中未包含服务 ItemService");
     }
 }

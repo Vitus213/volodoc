@@ -45,6 +45,7 @@ pub fn generate_markdown(file: &File, structs: &Vec<Struct>, services: &Vec<Serv
                 let required = if f.attribute.contains("Required") { "是" } else { "否" };
                 doc.push_str(&format!("    - {}: {} ({})\n", f.name, f.r#type, required));
             }
+            
             doc.push_str("\n---\n\n");
         }
     }
