@@ -82,13 +82,22 @@ fn process_file(idl_path: &str) {
     // 生成示例数据
     let sample_data = sample_data_generator::generate_sample_data(&file);
 
+    // 获取输出文件夹并创建（如果不存在）
+    let out_dir = "volodoc";
+    if !Path::new(out_dir).exists() {
+        fs::create_dir_all(out_dir).unwrap_or_else(|e| {
+            eprintln!("创建 {} 文件夹失败: {}", out_dir, e);
+            process::exit(1);
+        });
+    }
+
     let filename = Path::new(idl_path)
         .file_stem()
         .unwrap()
         .to_str()
         .unwrap();
-    let api_out_path = format!("volodoc/{}_api.md", filename);
-    let sample_out_path = format!("volodoc/{}_test.md", filename);
+    let api_out_path = format!("{}/{}_api.md", out_dir, filename);
+    let sample_out_path = format!("{}/{}_test.md", out_dir, filename);
 
     fs::write(&api_out_path, api_markdown)
         .unwrap_or_else(|e| { eprintln!("写入 API 文档失败: {}", e); process::exit(1); });

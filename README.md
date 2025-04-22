@@ -29,7 +29,7 @@
 ---
 🚀 使用方式
 安装依赖：cargo build | cargo install 
-生成文档和示例数据：​执行 cargo run -- doc_generator /path/to/your/service.thrift，将生成的文档和示例数据输出到标准输出。
+生成文档和示例数据：​执行 `cargo run -- doc_generator /path/to/your/example.thrift` 或者是 `volodoc doc_generator /path/to/example.thrift`，将生成的文档和示例数据输出到标准输出。
 使用`volodoc doc_generator`会默认扫描idl文件夹下的所有thrift文件然后生成对应的api文档和示例数据
 集成到开发流程：​可以将文档生成集成到 CI/CD 流程中，确保文档与代码同步更新。
 Volo集成 ：可以通过Volo doc_genarater命令生成api接口和示例数据
