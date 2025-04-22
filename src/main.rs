@@ -1,65 +1,99 @@
 use std::env;
 use std::fs;
+use std::fs::read_dir;
 use std::path::Path;
 use std::process;
 
 mod idl_parser;
+mod doc_generator;
 mod sample_data_generator;
-mod markdown_generator;
-mod  doc_generator;
-
 
 fn main() {
-    // 从命令行参数中获取 IDL 文件路径
     let args: Vec<String> = env::args().collect();
-    if args.len() < 2 {
-        eprintln!("用法: {} <idl 文件路径>", args[0]);
-        process::exit(1);
+
+    // 如果传入 --version，则输出版本号并退出
+    if args.len() >= 2 && args[1] == "--version" {
+        println!("volodoc version {}", env!("CARGO_PKG_VERSION"));
+        return;
     }
-    let idl_path = &args[1];
-    let idl_content = match fs::read_to_string(idl_path) {
-        Ok(content) => content,
-        Err(e) => {
-            eprintln!("读取 IDL 文件失败: {}", e);
-            process::exit(1);
-        }
-    };
 
-    // 解析 IDL 文件
-    let file = match idl_parser::parse_idl(&idl_content) {
-        Ok(f) => f,
-        Err(e) => {
-            eprintln!("解析 IDL 失败: {}", e);
-            process::exit(1);
+    // 单文件模式：如果传入 doc_generator 且指定了文件路径，则只处理该文件
+    if args.len() >= 2 {
+        match args[1].as_str() {
+            "doc_generator" => {
+                if args.len() >= 3 {
+                    // 只处理用户指定的单个文件
+                    process_file(&args[2]);
+                } else {
+                    // 未指定具体的文件时，扫描 idl/ 目录下所有 .thrift 文件处理
+                    process_directory("idl");
+                }
+                return;
+            }
+            _ => {
+                eprintln!("不支持的命令：{}", args[1]);
+                process::exit(1);
+            }
         }
-    };
+    }
 
-    // 生成 API 文档（Markdown 格式）和示例数据（JSON 格式）
-    let api_doc = idl_parser::parse_handler(&file);
+    // 未传入参数时，也默认遍历 idl 目录下所有 .thrift 文件
+    process_directory("idl");
+}
+
+/// 遍历指定的目录，处理其中所有以 .thrift 为后缀的文件
+fn process_directory(idl_dir: &str) {
+    let out_dir = "volodoc"; // 输出目录
+    if !Path::new(out_dir).exists() {
+        fs::create_dir_all(out_dir).expect("创建 volodoc 文件夹失败");
+    }
+    
+    let entries = read_dir(idl_dir).unwrap_or_else(|_| {
+        eprintln!("读取 {} 目录失败", idl_dir);
+        process::exit(1);
+    });
+
+    for entry in entries {
+        let entry = entry.expect("读取目录项失败");
+        let path = entry.path();
+        if let Some(ext) = path.extension() {
+            if ext == "thrift" {
+                let idl_path = path.to_str().unwrap().to_string();
+                process_file(&idl_path);
+            }
+        }
+    }
+}
+
+/// 处理单个 IDL 文件，生成 API 文档和示例数据
+fn process_file(idl_path: &str) {
+    let content = fs::read_to_string(idl_path).unwrap_or_else(|_| {
+        eprintln!("读取 IDL 文件失败: {}", idl_path);
+        process::exit(1);
+    });
+
+    let file = idl_parser::parse_idl(&content).unwrap_or_else(|e| {
+        eprintln!("解析 IDL 失败: {}", e);
+        process::exit(1);
+    });
+
+    // 生成 API 文档（Markdown 格式）
+    let api_markdown = idl_parser::parse_handler(&file);
+    // 生成示例数据
     let sample_data = sample_data_generator::generate_sample_data(&file);
 
-    // 确保保存结果的文件夹存在（文件夹名为 result）
-    let result_dir = "result";
-    if !Path::new(result_dir).exists() {
-        if let Err(e) = fs::create_dir_all(result_dir) {
-            eprintln!("创建文件夹 {} 失败: {}", result_dir, e);
-            process::exit(1);
-        }
-    }
+    let filename = Path::new(idl_path)
+        .file_stem()
+        .unwrap()
+        .to_str()
+        .unwrap();
+    let api_out_path = format!("volodoc/{}_api.md", filename);
+    let sample_out_path = format!("volodoc/{}_test.md", filename);
 
-    // 保存 API 文档到 result/api_doc.md
-    let api_doc_path = format!("{}/api_doc.md", result_dir);
-    if let Err(e) = fs::write(&api_doc_path, &api_doc) {
-        eprintln!("写入 API 文档失败: {}", api_doc_path);
-        process::exit(1);
-    }
-    println!("API 文档生成成功，文件：{}", api_doc_path);
+    fs::write(&api_out_path, api_markdown)
+        .unwrap_or_else(|e| { eprintln!("写入 API 文档失败: {}", e); process::exit(1); });
+    fs::write(&sample_out_path, sample_data)
+        .unwrap_or_else(|e| { eprintln!("写入示例数据失败: {}", e); process::exit(1); });
 
-    // 保存示例数据到 result/sample_data.json
-    let sample_data_path = format!("{}/sample_data.json", result_dir);
-    if let Err(e) = fs::write(&sample_data_path, &sample_data) {
-        eprintln!("写入示例数据失败: {}", sample_data_path);
-        process::exit(1);
-    }
-    println!("示例数据生成成功，文件：{}", sample_data_path);
+    println!("处理 {} 成功，生成文件:\n  {}\n  {}", idl_path, api_out_path, sample_out_path);
 }

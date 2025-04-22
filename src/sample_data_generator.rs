@@ -31,11 +31,18 @@ fn get_sample_value(field_type: &str, struct_map: &HashMap<String, MyStruct>) ->
 }
 
 /// 根据结构体定义生成示例 JSON 对象（递归支持嵌套结构体）
+/// 可选字段（optional）在测试中生成 null。
 fn generate_sample_for_struct(s: &MyStruct, struct_map: &HashMap<String, MyStruct>) -> Value {
     let mut map = serde_json::Map::new();
     for field in &s.fields {
-        let sample = get_sample_value(&field.r#type, struct_map);
-        map.insert(field.name.clone(), sample);
+        if field.attribute.to_lowercase().contains("optional") {
+            // 对于可选类型直接输出 null，不生成示例数据
+            map.insert(field.name.clone(), json!(null));
+        } else {
+            // 必填字段生成实际示例数据
+            let sample = get_sample_value(&field.r#type, struct_map);
+            map.insert(field.name.clone(), sample);
+        }
     }
     Value::Object(map)
 }

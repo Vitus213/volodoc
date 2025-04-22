@@ -10,3 +10,12 @@ serde_json = "1.0"
 pilota-thrift-parser = "0.11.7"
 pilota-build = "0.11.13"
 tera ="1.20"
+rust-embed ="6.4.0"
+
+[[bin]]
+name = "volodoc"
+path = "src/main.rs"
+version = "0.1.0"
+description = "A tool to generate documentation for Thrift files"
+authors = ["Vitus"]
+edition = "2024"
